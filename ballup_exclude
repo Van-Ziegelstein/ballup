@@ -1,0 +1,6 @@
+/var/cache/*
+/var/log/*
+/home/bob/.cache
+/home/bob/.thumbnails
+/home/bob/.local/share/Trash
+/home/bob/.wine*

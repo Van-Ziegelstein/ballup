@@ -1,0 +1,163 @@
+#!/bin/bash
+
+
+cancel_op() {
+
+ echo "Operation canceled, exiting..."
+ 
+ if [ -d "$destination" ] && [ -f "$destination/$filename" ]; then
+ 
+    local interval=$(( $(date +%s) - $(stat -c "%Y" "$destination/$filename") ))
+    
+    if [ $interval -lt 86400 ]; then
+       rm "$destination/$filename"
+    fi
+       
+ fi
+ 
+ exit 1
+
+}
+
+trap cancel_op SIGINT SIGTERM
+
+
+backup() {
+   
+    local std_exclude_dirs=("/proc/*" "/run/*" "/sys/*" "/tmp/*" "/dev/*" "/mnt/*") 
+   
+    case ${compression:=gzip} in
+            
+             gzip) local multi_thr_algo="pigz"; std_algo="gzip";;   
+                    
+             bzip) local multi_thr_algo="pbzip2"; std_algo="bzip2";;
+                       
+             xz) local multi_thr_algo="pixz"; std_algo="xz";;
+                       
+             *) echo "Unrecognized compression algorithm, aborting..."; exit -1;;
+            
+    esac   
+    
+    if which "$multi_thr_algo" > /dev/null; then
+       local comp_param="-I $multi_thr_algo"
+       echo "Using multithreaded $compression implementation"
+    elif which "$std_algo" > /dev/null; then
+       local comp_param="--$std_algo"
+       echo "Using standard $compression implementation"
+    else
+       echo "No implementation of the requested compression algorithm found on this machine! Exiting..."
+       exit -1
+    fi   
+    
+    sleep 1
+    
+    
+    if [ "$choice" = "full" ]; then
+    
+      tar "$comp_param" -cvpf "$destination/$filename" --exclude="$destination/$filename" $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) /
+    
+    elif [ "$choice" = "custom" ]; then
+    
+      if [ -e "${exclude_selection:=ballup_exclude}" ]; then
+    
+         echo "Found exclude options in: $exclude_selection"
+         sleep 1
+    
+         tar "$comp_param" -cvpf "$destination/$filename" --exclude="$destination/$filename" $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) --exclude-from=$exclude_selection /
+      
+      else       
+         echo "Neither the provided nor the default exclusion file could be found, aborting..."
+         exit -1
+      fi
+         
+    fi
+    
+    if [ $? = 0 ]; then   
+       
+        echo -e "File operation completed"
+        exit 0
+    else
+        echo "Warning, file operation completed with errors!"
+        exit -1
+    fi
+}
+
+
+help_me() {
+ 
+cat <<EOF
+Rudimentary script to create tarballs of the current system.
+
+General format of the command: 
+${0##*/} --full | --custom [ </path/to/exclude-file> ] [ --path </path/to/archive> ] [ --algo <gzip|bzip|xz> ]
+ 
+Recognized options:
+
+--full: Perform a full backup of the system, excluding only certain directories like /proc or /tmp. 
+ 
+--custom <exclude-file>: Perform a system backup, excluding the paths specified in "exclude-file". 
+If no file is provided the script will look for a file named "ballup_exclude" in the current directory.
+ 
+--path: Location where the archive should be created. Defaults to the current directory. 
+ 
+--algo: The compression algorithm to use. Defaults to gzip.     
+
+--help: Print this dilogue. 
+EOF
+
+}
+
+
+#################### Main ###################
+
+
+if [ $# -ne 0 ]; then
+
+   until [ $# -eq 0 ]
+   do
+      case $1 in
+    
+        --help) help_me; exit 0;;
+                
+        --full) choice="full";;
+        
+        --custom) choice="custom"; shift; exclude_selection=$(realpath -qe "$1");;        
+        
+        --path) shift; destination=$(realpath -qe "$1");;
+              
+        --algo) shift; compression=$1;;
+      
+        *) echo "That option is unsupported. Type --help for more info..."; exit 0;;
+           
+       esac          
+       shift
+       
+   done
+ 
+   if [ ! "$(id -u)" -eq 0 ];then
+      echo "Warning, you may lack sufficient privileges to access certain files for the backup!"
+   fi
+
+   echo "Initializing backup operation on local machine..."
+
+   while [ ! -d "${destination:=.}" ]
+   do
+      read -p "Bad path, specify new one: " user_dest
+      destination=$(realpath -qe "$user_dest")
+   done
+
+   snapshot_month=$(date +%B)
+   snapshot_year=$(date +%Y)
+
+   filename="Backup-$snapshot_month-$snapshot_year.tar.$compression"
+
+   if [ -e "$destination/$filename" ]; then
+      echo "Warning, there is already an archive of the same date, aborting..."
+      exit -1
+   fi  
+
+   backup
+          
+else
+    echo "Insufficient amount of parameters. Type --help for a list of available options!" 
+fi    

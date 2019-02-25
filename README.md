@@ -49,3 +49,6 @@ implementation and then for a standard one. By default, gzip is used.
 
 ## Authors
 **Van Ziegelstein** - Creator and Maintainer
+
+## License
+This abomination is licensed under the [MIT License](LICENSE).

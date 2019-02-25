@@ -132,7 +132,7 @@ if [ $# -ne 0 ]; then
               
         --algo) shift; compression=$1;;
       
-        *) echo "That option is unsupported. Type --help for more info..."; exit 0;;
+        *) echo "That option is unsupported. Type --help for more info."; exit 0;;
            
        esac          
        shift
@@ -140,14 +140,14 @@ if [ $# -ne 0 ]; then
    done
  
    if [ ! "$(id -u)" -eq 0 ];then
-      echo "Warning, you may lack sufficient privileges to access certain files for the backup!"
+      echo "Warning, you may lack sufficient privileges to access certain files!"
    fi
 
    echo "Initializing backup operation on local machine..."
 
    while [ ! -d "${destination:=.}" ]
    do
-      read -p "Bad path, specify new one: " user_dest
+      read -p "Bad path, specify a new one: " user_dest
       destination=$(realpath -qe "$user_dest")
    done
 
@@ -164,5 +164,5 @@ if [ $# -ne 0 ]; then
    backup
           
 else
-    echo "Insufficient amount of parameters. Type --help for a list of available options!" 
+    echo "Insufficient amount of parameters. Type --help for a list of available options." 
 fi    

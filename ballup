@@ -128,7 +128,7 @@ if [ $# -ne 0 ]; then
         
         --custom) choice="custom"; shift; exclude_selection=$(realpath -qe "$1");;        
         
-        --path) shift; destination=$(realpath -qe "$1");;
+        --path) shift; destination=$(realpath -qm "$1");;
               
         --algo) shift; compression=$1;;
       
@@ -148,7 +148,7 @@ if [ $# -ne 0 ]; then
    while [ ! -d "${destination:=.}" ]
    do
       read -p "Bad path, specify a new one: " user_dest
-      destination=$(realpath -qe "$user_dest")
+      destination=$(realpath -qm "$user_dest")
    done
 
    snapshot_month=$(date +%B)

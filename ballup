@@ -69,7 +69,9 @@ backup() {
          echo "Neither the provided nor the default exclusion file could be found, aborting..."
          exit -1
       fi
-         
+    else
+      echo "Either --full or --custom must be specified."
+      exit -1
     fi
     
     if [ $? = 0 ]; then   

@@ -54,7 +54,9 @@ backup() {
     
     if [ "$choice" = "full" ]; then
     
-      tar "$comp_param" -cvpf "$destination/$filename" --exclude="$destination/$filename" $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) /
+      tar "$comp_param" -cvpf "$destination/$filename" \
+          --exclude="$destination/$filename" \
+	  $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) /
     
     elif [ "$choice" = "custom" ]; then
     
@@ -63,7 +65,9 @@ backup() {
          echo "Found exclude options in: $exclude_selection"
          sleep 1
     
-         tar "$comp_param" -cvpf "$destination/$filename" --exclude="$destination/$filename" $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) --exclude-from=$exclude_selection /
+         tar "$comp_param" -cvpf "$destination/$filename" \
+	     --exclude="$destination/$filename" \
+	     $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) --exclude-from=$exclude_selection /
       
       else       
          echo "Neither the provided nor the default exclusion file could be found, aborting..."
@@ -75,7 +79,6 @@ backup() {
     fi
     
     if [ $? = 0 ]; then   
-       
         echo -e "File operation completed"
         exit 0
     else

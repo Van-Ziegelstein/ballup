@@ -46,6 +46,7 @@ implementation and then for a standard one. By default, gzip is used.
 
 ## Limitations
 * This utility is designed for Unix systems.
+* With both operations root privileges may be required to access certain directories.
 
 ## Authors
 **Van Ziegelstein** - Creator and Maintainer

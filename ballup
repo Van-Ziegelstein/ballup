@@ -26,7 +26,7 @@ backup() {
    
     local std_exclude_dirs=("/proc/*" "/run/*" "/sys/*" "/tmp/*" "/dev/*" "/mnt/*") 
    
-    case ${compression:=gzip} in
+    case $compression in
             
              gzip) local multi_thr_algo="pigz"; std_algo="gzip";;   
                     
@@ -154,7 +154,7 @@ if [ $# -ne 0 ]; then
    snapshot_month=$(date +%B)
    snapshot_year=$(date +%Y)
 
-   filename="Backup-$snapshot_month-$snapshot_year.tar.$compression"
+   filename="Backup-$snapshot_month-$snapshot_year.tar.${compression:=gzip}"
 
    if [ -e "$destination/$filename" ]; then
       echo "Warning, there is already an archive of the same date, aborting..."

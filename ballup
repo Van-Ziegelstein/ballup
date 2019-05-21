@@ -79,7 +79,7 @@ backup() {
     fi
     
     if [ $? = 0 ]; then   
-        echo -e "File operation completed"
+        echo "File operation completed"
         exit 0
     else
         echo "Warning, file operation completed with errors!"

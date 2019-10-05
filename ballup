@@ -126,7 +126,12 @@ if [ $# -ne 0 ]; then
                 
         --full) choice="full";;
         
-        --custom) choice="custom"; shift; exclude_selection=$(realpath -qe "$1");;        
+        --custom) choice="custom"; 
+                  if [ -n "$2" ] && sed '/^-\+.*/{q2}' <<< "$2" > /dev/null; then 
+                     shift 
+                     exclude_selection=$(realpath -qe "$1")        
+                  fi
+                  ;;
         
         --path) shift; destination=$(realpath -qm "$1");;
               

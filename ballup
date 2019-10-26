@@ -33,6 +33,8 @@ backup() {
              bzip) local multi_thr_algo="pbzip2"; std_algo="bzip2";;
                        
              xz) local multi_thr_algo="pixz"; std_algo="xz";;
+
+             zst) local multi_thr_algo="zstdmt"; std_algo="zstd";;
                        
              *) echo "Unrecognized compression algorithm, aborting..."; exit -1;;
             
@@ -94,7 +96,7 @@ cat <<EOF
 Rudimentary script to create tarballs of the current system.
 
 General format of the command: 
-${0##*/} --full | --custom [ </path/to/exclude-file> ] [ --path </path/to/archive> ] [ --algo <gzip|bzip|xz> ]
+${0##*/} --full | --custom [ </path/to/exclude-file> ] [ --path </path/to/archive> ] [ --algo <gzip|bzip|xz|zst> ]
  
 Recognized options:
 

@@ -56,7 +56,9 @@ backup() {
     
     if [ "$choice" = "full" ]; then
     
-      tar "$comp_param" -cvpf "$destination/$filename" \
+      tar "$comp_param" \
+          $(if [ -n "$verbose" ]; then echo "-v"; else echo "--totals"; fi) \
+          -cpf "$destination/$filename" \
           --exclude="$destination/$filename" \
 	  $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) /
     
@@ -67,7 +69,9 @@ backup() {
          echo "Found exclude options in: $exclude_selection"
          sleep 1
     
-         tar "$comp_param" -cvpf "$destination/$filename" \
+         tar "$comp_param" \
+             $(if [ -n "$verbose" ]; then echo "-v"; else echo "--totals"; fi) \
+             -cpf "$destination/$filename" \
 	     --exclude="$destination/$filename" \
 	     $(for entry in "${std_exclude_dirs[@]}"; do echo -n "--exclude=$entry "; done) --exclude-from=$exclude_selection /
       
@@ -109,6 +113,8 @@ If no file is provided the script will look for a file named "ballup_exclude" in
  
 --algo: The compression algorithm to use. Defaults to gzip.     
 
+--verbose: more verbose output during archive creation.
+
 --help: Print this dilogue. 
 EOF
 
@@ -138,6 +144,8 @@ if [ $# -ne 0 ]; then
         --path) shift; destination=$(realpath -qm "$1");;
               
         --algo) shift; compression=$1;;
+
+        --verbose) verbose="yes";;
       
         *) echo "That option is unsupported. Type --help for more info."; exit 0;;
            
